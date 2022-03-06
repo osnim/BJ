@@ -8,8 +8,6 @@ Juhee Kang님의 엑셀양식을 약간 수정하여서 사용하고 있습니�
 
 👉[엑셀양식 다운로드 하기](https://docs.google.com/spreadsheets/d/1Bx27IJulthhpM04qbtuL0aAkX8psi5D4/edit?usp=sharing&ouid=113010703494073260482&rtpof=true&sd=true)
 
-### ❗️반드시 이름을 딴 브랜치와 폴더를 만들어주시고, 커밋된 사항은 main으로 merge해주세요❗️
-
 ## 진행도
 
 | 문제개수 |  osnim   |
