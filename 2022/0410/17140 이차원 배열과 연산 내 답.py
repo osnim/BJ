@@ -1,4 +1,3 @@
-from collections import deque
 def compute():
     rlen = len(arr)
     clen = len(arr[0])
@@ -24,11 +23,9 @@ def compute():
     return
 
 r, c, k = map(int, input().split())
-#arr = [[0]*(3) for _ in range(3)]
 arr = []
 r, c= r-1, c-1
 ans = 0
-#rlen, clen = 3, 3
 for i in range(3):
     arr.append(list(map(int, input().split())))
 while True:
@@ -37,7 +34,6 @@ while True:
             print(ans)
             break
     except:pass
-
     if ans > 100:
         print(-1)
         break
