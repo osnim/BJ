@@ -13,6 +13,6 @@ def dfs(i):
     for j in range(i, N):
         if numList[j] not in s:
             s.append(numList[j])
-            dfs(j)
+            dfs(j+1)
             s.pop()
 dfs(0)
