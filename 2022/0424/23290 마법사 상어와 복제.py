@@ -28,7 +28,7 @@ a < b를 만족하면 A가 B보다 사전 순으로 앞선 것이다.
 [우, 하, 하], [우, 하, 우], [우, 우, 상], [우, 우, 좌], [우, 우, 하], [우, 우, 우] 이다.
 
 4. 두 번 전 연습에서 생긴 물고기의 냄새가 격자에서 사라진다.
-5.
+5. 1에서 사용한 복제완료, 모든 복제된 물고기는 1에서의 위치와 방향을 그대로 갖게 된다.
 
 M, 물고기 수,
 S 연습한 수
@@ -47,53 +47,57 @@ def combi(i, temp):
         combi(j, temp)
         temp.pop()
     return
-
-def pruning(nx, ny, d, dep, tempEat, maxEatCnt):
-    if nx < 0 or nx >= 4 or ny < 0 or ny >= 4:
-        return False
-    #최대 먹은 물고기 수 > 남은 단계 + 현재 단계까지 먹은 개수
-    if maxEatCnt > (3-dep + tempEat):
-        return False
-
-    return True
-
-def goShark(sx, sy, d, cnt, tempEat, tempArr, EatList):
+#def goShark(sx, sy, d, cnt, tempEat, tempArr, dirList):
+#DFS(sx, sy, 0, 0, [], arr)
+def DFS(sx, sy, tempEatCnt, dirList, MAP):
     global maxEatCnt
     global ans
-    if cnt == 3:
-        temp = EatList[0]*100 + EatList[1]*10 + EatList[1]
-        ans = max(ans, temp)
-        return
-    #방향 설정부터 다시
-    for i in range(4):
-    nx, ny = sx + sdx[d], sy + sdy[d]
-    if pruning(nx, ny, d, cnt, tempEat, maxEatCnt):
-        tempArr2 = [i[:] for i in tempArr]
-        if len(tempArr2[nx][ny]) > 0:
-            tempEat += len(tempArr2[nx][ny])
-            maxEat = max(maxEatCnt, tempEat)
-            tempArr2[nx][ny] = []
-            smell[nx][ny] = -2
-        goShark(nx, ny, d, cnt + 1, tempEat, tempArr2, EatList)
-        tempArr2 = [i[:] for i in tempArr]
-
-    else:
+    if len(dirList) == 3:
+        temp = (dirList[0] + 1) * 100 + (dirList[1] + 1) * 10 + dirList[2] + 1
+        if maxEatCnt < tempEatCnt:
+            maxEatCnt = tempEatCnt
+            ans = temp
+        elif maxEatCnt == tempEatCnt:
+            ans = min(ans, temp)
         return
 
-arr = [[[] for i in range(4)] for _ in range(4)]
+    #4방향 가야함
+    #for dd in range(d, 4):
+    tempArr = [i[:] for i in MAP]
+    for d in range(4):
+        nx, ny = sx + sdx[d], sy + sdy[d]
+        #dirList.append(d)
+        if nx < 0 or nx >= 4 or ny < 0 or ny >= 4:
+            continue
+        #if pruning(nx, ny, dirList, tempEatCnt):
+        if len(tempArr[nx][ny]) > 0:
+            tempEatCnt += len(tempArr[nx][ny])
+            # maxEatCnt = max(maxEatCnt, tempEatCnt)
+            tempArr[nx][ny] = []
+            # smell[nx][ny] = -2
+
+        dirList.append(d)
+        DFS(nx, ny, tempEatCnt, dirList, tempArr)
+        tempArr = [i[:] for i in MAP]
+        tempEatCnt -= len(tempArr[nx][ny])
+        dirList.pop()
+
+
 M, S = map(int, input().split())
 #     ←, ↖,   ↑,  ↗, →, ↘, ↓, ↙
 dx = [0, -1, -1, -1, 0, 1, 1, 1]
 dy = [-1, -1, 0, 1, 1, 1, 0, -1]
 sdx = [-1, 0, 1, 0]
 sdy = [0, -1, 0, 1]
-ans = 0
-maxEat = 0
+smell = [[0]*4 for i in range(4)]
+arr = [[[] for i in range(4)] for _ in range(4)]
+
 for _ in range(M):
     x, y, d = map(int, input().split())
     arr[x-1][y-1].append(d)
 
 sx, sy = map(int, input().split())
+sx, sy = sx -1 , sy -1
 
 # 방향 조합 3개 찾음
 combis = []
@@ -102,14 +106,18 @@ combis = []
 
 # 물고기 한 칸 이동
 for _ in range(S):
+    ans = 999
+    maxEatCnt = 0
+    pastArr = [i[:] for i in arr]
     tempArr = [[[] for i in range(4)] for _ in range(4)]
-    smell = [[0]*4 for i in range(4)]
+    #물고기 이동
     for i in range(4):
         for j in range(4):
             if len(arr[i][j]) > 0:
                 for d in arr[i][j]:
                     d = d-1
                     for _ in range(8):
+                        move = False
                         nx, ny = i + dx[d], j + dy[d]
                         if nx < 0 or nx >= 4 or ny < 0 or ny >= 4 or (nx == sx and ny == sy):
                             d = (d - 1 + 8) % 8
@@ -120,24 +128,45 @@ for _ in range(S):
                             continue
                         else:
                             tempArr[nx][ny].append(d+1)
+                            move = True
                             break
+                    if not move:
+                        tempArr[i][j].append(d + 1)
 
     arr = [i[:] for i in tempArr]
 
     # 상어 연속 3칸 이동
-    for d in range(4):
-        #goShark(sx, sy, d, cnt, eat):
+    DFS(sx, sy, 0, [], arr)
+    if ans == 999:
+        ans = 111
 
-        tempArr = [i[:] for i in arr]
-        goShark(sx, sy, d, 0, 0, tempArr, [])
-
-
-    # 두 번 전 연습에서 생긴 물고기의 냄새가 격자에서 사라진다.
+    # 두 번 전 연습에서 생긴 물고기의 냄새 1 제거.
+    # 물고기에만 영향 미치니 나중에 더함
     for i in range(4):
         for j in range(4):
             if smell[i][j] < 0:
                 smell[i][j] += 1
 
+    dirList = [ans//100, (ans%100)//10, ans%10]
+    nx, ny = sx, sy
+    for d in dirList:
+        nx, ny = nx + sdx[d-1], ny + sdy[d-1]
+        if len(arr[nx][ny]) > 0:
+            smell[nx][ny] = -2
+        arr[nx][ny] = []
+    sx, sy = nx, ny
 
+    # 물고기 복사
+    for i in range(4):
+        for j in range(4):
+            if len(pastArr[i][j]) > 0:
+                for num in pastArr[i][j]:
+                    arr[i][j].append(num)
+fishCnt = 0
+for i in range(4):
+    for j in range(4):
+        fishCnt += len(arr[i][j])
+
+print(fishCnt)
 
 

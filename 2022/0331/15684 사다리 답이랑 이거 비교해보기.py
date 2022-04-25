@@ -39,7 +39,7 @@ def DFS(graph, cnt, startCol):
 
         else: #틀리면 이전 DFS부터 다시
 
-            DFS(Graph, cnt, startCol + 1)
+            DFS(graph, cnt, startCol + 1)
             tempGraph = [i[:] for i in graph]
 
             if addLine(tempGraph, cnt):
